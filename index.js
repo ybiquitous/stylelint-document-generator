@@ -74,7 +74,7 @@ module.exports = function main(outputDir) {
         url
           .replace("../indentation/README.md", "indentation.md")
           .replace(/\.\.\/([a-z-]+)\/README.md/, "$1.md")
-          .replace("../../../docs/user-guide/cli.md", "../cli.md")
+          .replace(/\.\.\/\.\.\/\.\.\/docs\/user-guide\/([a-z-]+)\.md/, "../$1.md")
     });
     const outputFile = path.join(
       outputDir,
