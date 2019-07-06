@@ -17,8 +17,7 @@ function rewriteLink({ rewriter }) {
 const extractTitleFromH1 = content => content.match(/\n?# ([^\n]+)\n/)[1];
 
 const titleToSidebarLabel = {
-  stylelint: "Home",
-  Rules: "Overview"
+  stylelint: "Home"
 };
 
 function processMarkdown(file, { rewriter }) {
