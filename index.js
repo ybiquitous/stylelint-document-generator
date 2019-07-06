@@ -14,16 +14,16 @@ function rewriteLink({ rewriter }) {
   return transform;
 }
 
-function processMarkdown(file, plugins = []) {
-  let processor = remark();
-  plugins.forEach(([plugin, options]) => {
-    processor = processor.use(plugin, options);
-  });
+const extractTitleFromH1 = content => content.match(/\n?# ([^\n]+)\n/)[1];
+
+function processMarkdown(file, { rewriter }) {
+  let processor = remark().use(rewriteLink, { rewriter });
   const content = processor.processSync(fs.readFileSync(file, "utf8")).toString();
-  const title = content.match(/\n?# ([^\n]+)\n/)[1]; // extract title from h1
+  const title = extractTitleFromH1(content);
+  const sidebarLabel = title === "stylelint" ? "Home" : title;
   return `---
 title: ${title}
-sidebar_label: ${title}
+sidebar_label: ${sidebarLabel}
 hide_title: true
 ---
 
@@ -34,12 +34,9 @@ module.exports = function main(outputDir) {
   fs.mkdirSync(outputDir, { recursive: true });
 
   globby.sync("node_modules/stylelint/*.md").forEach(async file => {
-    const output = processMarkdown(file, [
-      [
-        rewriteLink,
-        { rewriter: url => url.replace(/^\/?docs\//, "").replace("README.md", "index.md") }
-      ]
-    ]);
+    const output = processMarkdown(file, {
+      rewriter: url => url.replace(/^\/?docs\//, "").replace("README.md", "index.md")
+    });
     const outputFile = path.join(
       outputDir,
       file.replace("node_modules/stylelint", "").replace("README.md", "index.md")
@@ -50,22 +47,17 @@ module.exports = function main(outputDir) {
   });
 
   globby.sync("node_modules/stylelint/docs/**/*.md").forEach(file => {
-    const output = processMarkdown(file, [
-      [
-        rewriteLink,
-        {
-          rewriter: url =>
-            url
-              .replace(
-                "../../lib/rules/index.js",
-                "https://github.com/stylelint/stylelint/blob/master/lib/rules/index.js"
-              )
-              .replace("../../VISION.md", "../VISION.md")
-              .replace("../../lib/rules/", "rules/")
-              .replace("/README.md", ".md")
-        }
-      ]
-    ]);
+    const output = processMarkdown(file, {
+      rewriter: url =>
+        url
+          .replace(
+            "../../lib/rules/index.js",
+            "https://github.com/stylelint/stylelint/blob/master/lib/rules/index.js"
+          )
+          .replace("../../VISION.md", "../VISION.md")
+          .replace("../../lib/rules/", "rules/")
+          .replace("/README.md", ".md")
+    });
     const outputFile = path.join(outputDir, file.replace("node_modules/stylelint/docs", ""));
     fs.mkdirSync(path.dirname(outputFile), { recursive: true });
     fs.writeFileSync(outputFile, output, "utf8");
@@ -73,18 +65,13 @@ module.exports = function main(outputDir) {
   });
 
   globby.sync("node_modules/stylelint/lib/rules/**/*.md").forEach(file => {
-    const output = processMarkdown(file, [
-      [
-        rewriteLink,
-        {
-          rewriter: url =>
-            url
-              .replace("../indentation/README.md", "indentation.md")
-              .replace(/\.\.\/([a-z-]+)\/README.md/, "$1.md")
-              .replace("../../../docs/user-guide/cli.md", "../cli.md")
-        }
-      ]
-    ]);
+    const output = processMarkdown(file, {
+      rewriter: url =>
+        url
+          .replace("../indentation/README.md", "indentation.md")
+          .replace(/\.\.\/([a-z-]+)\/README.md/, "$1.md")
+          .replace("../../../docs/user-guide/cli.md", "../cli.md")
+    });
     const outputFile = path.join(
       outputDir,
       file
