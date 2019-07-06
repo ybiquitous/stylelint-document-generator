@@ -14,12 +14,20 @@ function rewriteLink({ rewriter }) {
   return transform;
 }
 
-function processMarkdown(file, use = []) {
-  let ret = remark();
-  use.forEach(([plugin, options]) => {
-    ret = ret.use(plugin, options);
+function processMarkdown(file, plugins = []) {
+  let processor = remark();
+  plugins.forEach(([plugin, options]) => {
+    processor = processor.use(plugin, options);
   });
-  return ret.processSync(fs.readFileSync(file, "utf8")).toString();
+  const content = processor.processSync(fs.readFileSync(file, "utf8")).toString();
+  const title = content.match(/\n?# ([^\n]+)\n/)[1]; // extract title from h1
+  return `---
+title: ${title}
+sidebar_label: ${title}
+hide_title: true
+---
+
+${content}`;
 }
 
 module.exports = function main(outputDir) {
