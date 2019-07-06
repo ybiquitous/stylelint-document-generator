@@ -16,11 +16,16 @@ function rewriteLink({ rewriter }) {
 
 const extractTitleFromH1 = content => content.match(/\n?# ([^\n]+)\n/)[1];
 
+const titleToSidebarLabel = {
+  stylelint: "Home",
+  Rules: "Overview"
+};
+
 function processMarkdown(file, { rewriter }) {
   let processor = remark().use(rewriteLink, { rewriter });
   const content = processor.processSync(fs.readFileSync(file, "utf8")).toString();
   const title = extractTitleFromH1(content);
-  const sidebarLabel = title === "stylelint" ? "Home" : title;
+  const sidebarLabel = titleToSidebarLabel[title] || title;
   return `---
 title: ${title}
 sidebar_label: ${sidebarLabel}
