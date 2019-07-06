@@ -1,0 +1,1 @@
+# stylelint-document-generator
