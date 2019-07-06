@@ -1,11 +1,14 @@
-const cp = require("child_process");
+#!/usr/bin/env node
+"use strict";
+
+const { execFile } = require("child_process");
 const main = require(".");
 
 const outputDir = process.argv[2] || "docs";
 
 main(outputDir);
 
-cp.execFile(
+execFile(
   "node_modules/.bin/remark",
   ["--frail", "--quiet", "--use", "validate-links", outputDir],
   (error, stdout, stderr) => {
