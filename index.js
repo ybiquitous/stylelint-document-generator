@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const globby = require("globby");
+const glob = require("glob");
 const remark = require("remark");
 const visit = require("unist-util-visit");
 
@@ -37,7 +37,7 @@ ${content}`;
 module.exports = function main(outputDir) {
   fs.mkdirSync(outputDir, { recursive: true });
 
-  globby.sync("node_modules/stylelint/*.md").forEach(async file => {
+  glob.sync("node_modules/stylelint/*.md").forEach(async file => {
     const output = processMarkdown(file, {
       rewriter: url => url.replace(/^\/?docs\//, "").replace("README.md", "index.md")
     });
@@ -50,7 +50,7 @@ module.exports = function main(outputDir) {
     console.log(outputFile);
   });
 
-  globby.sync("node_modules/stylelint/docs/**/*.md").forEach(file => {
+  glob.sync("node_modules/stylelint/docs/**/*.md").forEach(file => {
     const output = processMarkdown(file, {
       rewriter: url =>
         url
@@ -68,7 +68,7 @@ module.exports = function main(outputDir) {
     console.log(outputFile);
   });
 
-  globby.sync("node_modules/stylelint/lib/rules/**/*.md").forEach(file => {
+  glob.sync("node_modules/stylelint/lib/rules/**/*.md").forEach(file => {
     const output = processMarkdown(file, {
       rewriter: url =>
         url
